@@ -7,19 +7,57 @@
 //
 
 import UIKit
+import WebKit
+class ViewController: UIViewController, UITextFieldDelegate,WKNavigationDelegate {
 
-class ViewController: UIViewController {
-
+    @IBOutlet weak var urlTextField: UITextField!
+    @IBOutlet weak var backBtn: UIButton!
+    @IBOutlet weak var forwardBtn: UIButton!
+    @IBOutlet weak var webView: WKWebView!
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        urlTextField.delegate = self
+        webView.navigationDelegate = self
+    }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        let urlString :String = "https://dwayr.com"
+        let url:URL = URL(string: urlString)!
+        let urlRequest: URLRequest = URLRequest(url: url)
+        webView.load(urlRequest)
+        
+        urlTextField.text = urlString
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    @IBAction func backBtnTapped(_ sender: Any) {
+        if webView.canGoBack {
+            webView.goBack()
+        }
     }
-
-
+    
+    @IBAction func forwardBtnTapped(_ sender: Any) {
+        if webView.canGoForward{
+            webView.goForward()
+        }
+    }
+    
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        backBtn.isEnabled = webView.canGoBack
+        forwardBtn.isEnabled = webView.canGoForward
+        
+        urlTextField.text = webView.url?.absoluteString
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        let urlSting:String = urlTextField.text!
+        let url:URL = URL(string: urlSting)!
+        let urlRequest: URLRequest = URLRequest(url: url)
+        webView.load(urlRequest)
+        
+        textField.resignFirstResponder()
+        return true
+    }
 }
 
